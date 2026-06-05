@@ -230,6 +230,14 @@
     .fraction-display{font-size:0.72rem;color:var(--text-secondary);background:var(--bg-secondary);
       padding:2px 7px;border-radius:999px;border:1px solid var(--border);}
 
+    /* botones +/- inventario */
+    .inv-qty-btn{width:32px;height:32px;border-radius:var(--radius-sm);border:1.5px solid var(--border-strong);
+      background:var(--bg-primary);color:var(--text-secondary);font-size:1.1rem;font-weight:700;
+      cursor:pointer;display:flex;align-items:center;justify-content:center;
+      transition:all var(--transition);font-family:var(--font-body);line-height:1;flex-shrink:0;}
+    .inv-qty-btn:hover{background:var(--bg-secondary);border-color:var(--accent);color:var(--accent);}
+    .inv-qty-btn.inv-qty-add:hover{background:var(--accent);border-color:var(--accent);color:#fff;}
+
     /* filtros categoría */
     .cat-filter{display:flex;gap:0.35rem;margin-bottom:0.85rem;overflow-x:auto;
       padding-bottom:3px;-webkit-overflow-scrolling:touch;}
@@ -309,6 +317,15 @@
       font-size:0.8rem;cursor:pointer;transition:all var(--transition);}
     .frac-btn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
     .frac-btn:hover:not(.active){border-color:var(--accent);color:var(--accent);}
+
+    /* botones rápidos de cantidad en inventario */
+    .inv-qty-btn{width:30px;height:30px;border-radius:var(--radius-sm);
+      border:1px solid var(--border-strong);background:var(--bg-secondary);
+      color:var(--text-primary);font-size:1.1rem;font-weight:600;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;line-height:1;
+      font-family:var(--font-body);transition:all var(--transition);}
+    .inv-qty-btn:hover{background:var(--accent);color:#fff;border-color:var(--accent);}
+    .inv-qty-btn.inv-qty-add:hover{background:var(--accent2);border-color:var(--accent2);}
 
     /* vista receta */
     .recipe-view-ings{display:flex;flex-wrap:wrap;gap:0.35rem;margin:0.65rem 0;}
@@ -391,9 +408,25 @@
     <h2 class="modal-title" id="modal-inv-title">Editar producto</h2>
 
     <div class="form-group">
-      <label id="inv-name-label">Producto</label>
-      <input type="text" id="inv-name-input" placeholder="Ej: Harina 0000" readonly
-        style="background:var(--bg-secondary);cursor:default;">
+      <label id="inv-name-label">Nombre del producto</label>
+      <input type="text" id="inv-name-input" placeholder="Ej: Harina 0000">
+    </div>
+
+    <div id="inv-cat-group" class="form-group">
+      <label for="inv-cat-input">Categoría</label>
+      <select id="inv-cat-input">
+        <option value="Aceites y grasas">Aceites y grasas</option>
+        <option value="Azúcares y dulces">Azúcares y dulces</option>
+        <option value="Bebidas">Bebidas</option>
+        <option value="Carnes">Carnes</option>
+        <option value="Condimentos">Condimentos</option>
+        <option value="Enlatados">Enlatados</option>
+        <option value="Frutas">Frutas</option>
+        <option value="Harinas y cereales">Harinas y cereales</option>
+        <option value="Lácteos">Lácteos</option>
+        <option value="Verduras">Verduras</option>
+        <option value="Otros">Otros</option>
+      </select>
     </div>
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.65rem;">
@@ -506,6 +539,7 @@
       </h1>
       <div class="inv-toolbar">
         <input type="text" class="inv-search" id="inv-search" placeholder="Buscar producto…" oninput="renderInventory()">
+        <button class="btn btn-primary" onclick="openAddInv()">+ Agregar</button>
       </div>
       <div class="cat-filter" id="cat-filter"></div>
       <div id="low-stock-alert" style="display:none;background:rgba(192,57,43,0.1);border:1px solid rgba(192,57,43,0.3);border-radius:var(--radius-md);padding:0.65rem 0.9rem;margin-bottom:0.85rem;font-size:0.85rem;color:var(--danger);font-weight:500;">
@@ -1128,8 +1162,20 @@ function openAddInv(itemId){
   state.editingInvId=itemId||null;
   state.selectedFraction=0;
   const item=itemId?state.inventory.find(i=>i.id===itemId):null;
+
   document.getElementById('modal-inv-title').textContent=item?`Editar: ${item.name}`:'Agregar producto';
-  document.getElementById('inv-name-input').value=item?.name||'';
+
+  // Nombre
+  const nameInput=document.getElementById('inv-name-input');
+  nameInput.value=item?.name||'';
+  nameInput.readOnly=!!item; // readonly solo si es edición de existente
+  nameInput.style.background=item?'var(--bg-secondary)':'';
+  nameInput.style.cursor=item?'default':'text';
+
+  // Categoría — siempre visible
+  const catInput=document.getElementById('inv-cat-input');
+  catInput.value=item?.cat||'Otros';
+
   document.getElementById('inv-qty-input').value=item?.qty??0;
   document.getElementById('inv-unit-input').value=item?.unit||'u';
   if(item) state.selectedFraction=item.fraction??0;
@@ -1157,27 +1203,39 @@ document.querySelectorAll('.frac-btn').forEach(b=>{
 });
 
 function saveInvItem(){
-  const name=document.getElementById('inv-name-input').value.trim();
+  const nameInput=document.getElementById('inv-name-input');
+  const name=nameInput.value.trim();
+  if(!name){showToast('⚠️ Ingresá un nombre');return;}
   const qty=parseFloat(document.getElementById('inv-qty-input').value)||0;
   const unit=document.getElementById('inv-unit-input').value;
-  const cat=state.inventory.find(i=>i.name===name)?.cat ||
-             state.knownIng.find(i=>i.name===name)?.cat || 'Otros';
-
   const fraction=UNITS_WITH_FRAC.includes(unit)?state.selectedFraction:0;
+  const catInput=document.getElementById('inv-cat-input').value;
 
-  const item={
-    id:state.editingInvId||uid(), name, qty, unit, cat, fraction,
-    icon:state.knownIng.find(i=>i.name.toLowerCase()===name.toLowerCase())?.icon||'📦'
-  };
+  // Para edición: preservar cat y icon del item original si los tiene
+  const existingItem=state.editingInvId?state.inventory.find(i=>i.id===state.editingInvId):null;
+  const cat=existingItem?.cat || catInput ||
+    state.knownIng.find(i=>i.name.toLowerCase()===name.toLowerCase())?.cat || 'Otros';
+  const icon=state.knownIng.find(i=>i.name.toLowerCase()===name.toLowerCase())?.icon||
+    existingItem?.icon||'📦';
+
+  const item={id:state.editingInvId||uid(), name, qty, unit, cat, fraction, icon};
 
   if(state.editingInvId){
     const idx=state.inventory.findIndex(i=>i.id===state.editingInvId);
-    state.inventory[idx]=item;
+    if(idx>=0) state.inventory[idx]=item;
   } else {
+    // Verificar duplicado
+    if(state.inventory.find(i=>i.name.toLowerCase()===name.toLowerCase())){
+      showToast('⚠️ Ese producto ya existe en el inventario');return;
+    }
     state.inventory.push(item);
+    // Agregar a knownIng si es totalmente nuevo
+    if(!state.knownIng.find(i=>i.name.toLowerCase()===name.toLowerCase())){
+      state.knownIng.push({id:uid(),name,cat,icon});
+    }
   }
   persist(); closeModal('modal-inv'); renderInventory();
-  showToast(`📦 "${name}" actualizado`);
+  showToast(state.editingInvId?`📦 "${name}" actualizado`:`✅ "${name}" agregado`);
 }
 
 function renderInventory(){
@@ -1214,19 +1272,25 @@ function renderInventory(){
   list.innerHTML=items.map(item=>{
     const fracStr=item.fraction&&item.fraction>0&&UNITS_WITH_FRAC.includes(item.unit)?
       ` + ${FRAC_LABELS[item.fraction]}`:'';
-    const qtyDisplay=item.qty>0||item.fraction>0
-      ?`${item.qty}${item.unit}${fracStr}`
-      :`<span style="color:var(--text-muted);font-size:0.85rem;">Sin stock</span>`;
+    const hasQty=item.qty>0||item.fraction>0;
+    const qtyNum=`${item.qty}${item.unit}${fracStr}`;
     const lowCls=item.qty===0&&item.fraction>0?' low-stock':'';
+    // Ítems personalizados (no default) pueden eliminarse
+    const isCustom=!DEFAULT_INGREDIENTS.find(d=>d.name.toLowerCase()===item.name.toLowerCase());
     return `<div class="inv-item${lowCls}">
       <span class="inv-item-icon">${item.icon}</span>
       <div class="inv-item-info">
         <div class="inv-item-name">${item.name}</div>
-        <div class="inv-item-meta">${item.cat}</div>
+        <div class="inv-item-meta" style="color:var(--text-muted);">${item.cat}</div>
       </div>
-      <div style="display:flex;align-items:center;gap:0.45rem;">
-        <span class="inv-item-qty">${qtyDisplay}</span>
-        <button class="meal-action-btn" title="Editar" onclick="openAddInv('${item.id}')">✏️</button>
+      <div style="display:flex;align-items:center;gap:0.3rem;">
+        <button class="inv-qty-btn" onclick="quickAdjustInv('${item.id}',-1)" title="Restar 1">−</button>
+        <span class="inv-item-qty" style="min-width:60px;text-align:center;">
+          ${hasQty?qtyNum:'<span style="color:var(--text-muted);font-size:0.8rem;">0'+item.unit+'</span>'}
+        </span>
+        <button class="inv-qty-btn inv-qty-add" onclick="quickAdjustInv('${item.id}',1)" title="Sumar 1">+</button>
+        <button class="meal-action-btn" title="Editar detalles" onclick="openAddInv('${item.id}')" style="margin-left:2px;">✏️</button>
+        ${isCustom?`<button class="meal-action-btn del-btn" title="Eliminar" onclick="deleteInvItem('${item.id}')">🗑</button>`:''}
       </div>
     </div>`;
   }).join('');
@@ -1239,6 +1303,22 @@ function renderCatFilter(){
 }
 
 function setActiveCat(cat){state.activeCat=cat;renderInventory();}
+
+function quickAdjustInv(id, delta){
+  const item=state.inventory.find(i=>i.id===id);
+  if(!item) return;
+  const newQty=Math.max(0, (item.qty||0)+delta);
+  item.qty=newQty;
+  // Si se resta a 0 y había fracción, quitar también la fracción
+  if(newQty===0 && delta<0) item.fraction=0;
+  persist(); renderInventory();
+}
+
+function deleteInvItem(id){
+  if(!confirm('¿Eliminar este producto del inventario?')) return;
+  state.inventory=state.inventory.filter(i=>i.id!==id);
+  persist(); renderInventory(); showToast('🗑 Producto eliminado');
+}
 
 /* ══════════════════════════════════
    LISTA DE COMPRAS
@@ -1381,6 +1461,11 @@ function confirmClearAll(){
   if(state.settings.dark) document.documentElement.setAttribute('data-theme','dark');
   if(state.settings.fontSize!=='normal') document.documentElement.setAttribute('data-font-size',state.settings.fontSize);
   setWeek(0);
+
+  // Registrar Service Worker para PWA / offline
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  }
 })();
 </script>
 </body>

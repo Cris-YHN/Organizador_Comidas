@@ -1,0 +1,25 @@
+{
+  "name": "MiMenú — Organizador de comidas",
+  "short_name": "MiMenú",
+  "description": "Planificá tu semana en la cocina, controlá tu despensa y generá tu lista de compras.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FFF8F0",
+  "theme_color": "#E07A3F",
+  "lang": "es",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
