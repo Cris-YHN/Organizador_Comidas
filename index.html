@@ -663,46 +663,47 @@ const FRAC_LABELS = {0:'Ninguna',0.25:'¼',0.5:'½',0.75:'¾'};
 const UNITS_WITH_FRAC = ['u','kg','L']; // solo estas permiten fracción
 
 // Lista maestra de ingredientes precargados (ordenada alfabéticamente)
+// defaultUnit: unidad lógica para ese producto en el inventario
 const DEFAULT_INGREDIENTS = [
-  {name:'Aceite de girasol', cat:'Aceites y grasas',   icon:'🫙'},
-  {name:'Aceite de oliva',   cat:'Aceites y grasas',   icon:'🫒'},
-  {name:'Ajo',               cat:'Condimentos',        icon:'🧄'},
-  {name:'Arroz',             cat:'Harinas y cereales', icon:'🌾'},
-  {name:'Atún en lata',      cat:'Enlatados',          icon:'🐟'},
-  {name:'Azúcar',            cat:'Azúcares y dulces',  icon:'🍬'},
-  {name:'Azúcar impalpable', cat:'Azúcares y dulces',  icon:'🍬'},
-  {name:'Banana',            cat:'Frutas',             icon:'🍌'},
-  {name:'Café',              cat:'Bebidas',            icon:'☕'},
-  {name:'Carne picada',      cat:'Carnes',             icon:'🥩'},
-  {name:'Cebolla',           cat:'Verduras',           icon:'🧅'},
-  {name:'Crema de leche',    cat:'Lácteos',            icon:'🥛'},
-  {name:'Fideos',            cat:'Harinas y cereales', icon:'🍝'},
-  {name:'Harina 000',        cat:'Harinas y cereales', icon:'🌾'},
-  {name:'Harina 0000',       cat:'Harinas y cereales', icon:'🌾'},
-  {name:'Huevos',            cat:'Otros',              icon:'🥚'},
-  {name:'Lechuga',           cat:'Verduras',           icon:'🥬'},
-  {name:'Leche entera',      cat:'Lácteos',            icon:'🥛'},
-  {name:'Levadura seca',     cat:'Harinas y cereales', icon:'🌾'},
-  {name:'Limón',             cat:'Frutas',             icon:'🍋'},
-  {name:'Manteca',           cat:'Lácteos',            icon:'🧈'},
-  {name:'Manzana',           cat:'Frutas',             icon:'🍎'},
-  {name:'Milanesa de ternera',cat:'Carnes',            icon:'🥩'},
-  {name:'Orégano',           cat:'Condimentos',        icon:'🌿'},
-  {name:'Pan rallado',       cat:'Harinas y cereales', icon:'🍞'},
-  {name:'Papa',              cat:'Verduras',           icon:'🥔'},
-  {name:'Pechuga de pollo',  cat:'Carnes',             icon:'🍗'},
-  {name:'Pimiento',          cat:'Verduras',           icon:'🫑'},
-  {name:'Pimentón',          cat:'Condimentos',        icon:'🌶️'},
-  {name:'Pimienta negra',    cat:'Condimentos',        icon:'🫙'},
-  {name:'Puré de tomate',    cat:'Enlatados',          icon:'🫙'},
-  {name:'Queso cremoso',     cat:'Lácteos',            icon:'🧀'},
-  {name:'Queso rallado',     cat:'Lácteos',            icon:'🧀'},
-  {name:'Sal',               cat:'Condimentos',        icon:'🧂'},
-  {name:'Salsa de tomate',   cat:'Enlatados',          icon:'🫙'},
-  {name:'Tomate',            cat:'Verduras',           icon:'🍅'},
-  {name:'Yerba mate',        cat:'Bebidas',            icon:'🧉'},
-  {name:'Zanahoria',         cat:'Verduras',           icon:'🥕'},
-  {name:'Agua',              cat:'Bebidas',            icon:'💧'},
+  {name:'Aceite de girasol',  cat:'Aceites y grasas',   icon:'🫙', defaultUnit:'ml'},
+  {name:'Aceite de oliva',    cat:'Aceites y grasas',   icon:'🫒', defaultUnit:'ml'},
+  {name:'Ajo',                cat:'Condimentos',        icon:'🧄', defaultUnit:'u'},
+  {name:'Arroz',              cat:'Harinas y cereales', icon:'🌾', defaultUnit:'kg'},
+  {name:'Atún en lata',       cat:'Enlatados',          icon:'🐟', defaultUnit:'u'},
+  {name:'Azúcar',             cat:'Azúcares y dulces',  icon:'🍬', defaultUnit:'kg'},
+  {name:'Azúcar impalpable',  cat:'Azúcares y dulces',  icon:'🍬', defaultUnit:'kg'},
+  {name:'Banana',             cat:'Frutas',             icon:'🍌', defaultUnit:'u'},
+  {name:'Café',               cat:'Bebidas',            icon:'☕', defaultUnit:'g'},
+  {name:'Carne picada',       cat:'Carnes',             icon:'🥩', defaultUnit:'kg'},
+  {name:'Cebolla',            cat:'Verduras',           icon:'🧅', defaultUnit:'u'},
+  {name:'Crema de leche',     cat:'Lácteos',            icon:'🥛', defaultUnit:'ml'},
+  {name:'Fideos',             cat:'Harinas y cereales', icon:'🍝', defaultUnit:'kg'},
+  {name:'Harina 000',         cat:'Harinas y cereales', icon:'🌾', defaultUnit:'kg'},
+  {name:'Harina 0000',        cat:'Harinas y cereales', icon:'🌾', defaultUnit:'kg'},
+  {name:'Huevos',             cat:'Otros',              icon:'🥚', defaultUnit:'u'},
+  {name:'Lechuga',            cat:'Verduras',           icon:'🥬', defaultUnit:'u'},
+  {name:'Leche entera',       cat:'Lácteos',            icon:'🥛', defaultUnit:'L'},
+  {name:'Levadura seca',      cat:'Harinas y cereales', icon:'🌾', defaultUnit:'g'},
+  {name:'Limón',              cat:'Frutas',             icon:'🍋', defaultUnit:'u'},
+  {name:'Manteca',            cat:'Lácteos',            icon:'🧈', defaultUnit:'g'},
+  {name:'Manzana',            cat:'Frutas',             icon:'🍎', defaultUnit:'u'},
+  {name:'Milanesa de ternera',cat:'Carnes',             icon:'🥩', defaultUnit:'kg'},
+  {name:'Orégano',            cat:'Condimentos',        icon:'🌿', defaultUnit:'g'},
+  {name:'Pan rallado',        cat:'Harinas y cereales', icon:'🍞', defaultUnit:'g'},
+  {name:'Papa',               cat:'Verduras',           icon:'🥔', defaultUnit:'kg'},
+  {name:'Pechuga de pollo',   cat:'Carnes',             icon:'🍗', defaultUnit:'kg'},
+  {name:'Pimiento',           cat:'Verduras',           icon:'🫑', defaultUnit:'u'},
+  {name:'Pimentón',           cat:'Condimentos',        icon:'🌶️', defaultUnit:'g'},
+  {name:'Pimienta negra',     cat:'Condimentos',        icon:'🫙', defaultUnit:'g'},
+  {name:'Puré de tomate',     cat:'Enlatados',          icon:'🫙', defaultUnit:'ml'},
+  {name:'Queso cremoso',      cat:'Lácteos',            icon:'🧀', defaultUnit:'g'},
+  {name:'Queso rallado',      cat:'Lácteos',            icon:'🧀', defaultUnit:'g'},
+  {name:'Sal',                cat:'Condimentos',        icon:'🧂', defaultUnit:'g'},
+  {name:'Salsa de tomate',    cat:'Enlatados',          icon:'🫙', defaultUnit:'ml'},
+  {name:'Tomate',             cat:'Verduras',           icon:'🍅', defaultUnit:'u'},
+  {name:'Yerba mate',         cat:'Bebidas',            icon:'🧉', defaultUnit:'kg'},
+  {name:'Zanahoria',          cat:'Verduras',           icon:'🥕', defaultUnit:'u'},
+  {name:'Agua',               cat:'Bebidas',            icon:'💧', defaultUnit:'L'},
 ];
 
 /* ══════════════════════════════════
@@ -713,7 +714,7 @@ function save(key,val){localStorage.setItem(key,JSON.stringify(val));}
 
 function buildDefaultInventory(){
   return DEFAULT_INGREDIENTS.map((ing,i)=>({
-    id:'di'+i, name:ing.name, qty:0, unit:'u',
+    id:'di'+i, name:ing.name, qty:0, unit:ing.defaultUnit||'u',
     cat:ing.cat, icon:ing.icon, fraction:0
   }));
 }
@@ -1323,6 +1324,8 @@ function deleteInvItem(id){
 /* ══════════════════════════════════
    LISTA DE COMPRAS
 ══════════════════════════════════ */
+function r2(n){ return Math.round(n * 100) / 100; } // redondeo a 2 decimales
+
 function generateShoppingList(){
   const k=weekKey(state.currentWeekOffset);
   const weekData=state.planner[k]||{};
@@ -1334,19 +1337,20 @@ function generateShoppingList(){
     if(!recipe) return;
     recipe.ingredients.forEach(ing=>{
       const name=typeof ing==='string'?ing:ing.name;
-      const qty=typeof ing==='object'?(parseFloat(ing.qty)||1)+(parseFloat(ing.frac)||0):1;
+      const qty=typeof ing==='object'?r2((parseFloat(ing.qty)||0)+(parseFloat(ing.frac)||0)):1;
       const unit=typeof ing==='object'?ing.unit:'u';
       if(!needed[name]) needed[name]={qty:0,unit};
-      needed[name].qty+=qty;
+      needed[name].qty=r2(needed[name].qty+qty);
     });
   });
 
   const shopItems=[];
   Object.entries(needed).forEach(([name,{qty,unit}])=>{
     const inv=state.inventory.find(i=>i.name.toLowerCase()===name.toLowerCase());
-    const have=inv?(inv.qty+(inv.fraction||0)):0;
-    if(have<qty){
-      shopItems.push({id:uid(),name,qty:Math.round((qty-have)*100)/100,unit,checked:false,manual:false});
+    const have=inv?r2((inv.qty||0)+(inv.fraction||0)):0;
+    const falta=r2(qty-have);
+    if(falta>0){
+      shopItems.push({id:uid(),name,qty:falta,unit,checked:false,manual:false});
     }
   });
 
@@ -1460,6 +1464,18 @@ function confirmClearAll(){
 (function init(){
   if(state.settings.dark) document.documentElement.setAttribute('data-theme','dark');
   if(state.settings.fontSize!=='normal') document.documentElement.setAttribute('data-font-size',state.settings.fontSize);
+
+  // Migración: actualizar unidades de ingredientes precargados que siguen en 'u' por defecto
+  let migrated=false;
+  state.inventory.forEach(item=>{
+    const def=DEFAULT_INGREDIENTS.find(d=>d.name===item.name);
+    if(def && def.defaultUnit && item.unit==='u' && def.defaultUnit!=='u'){
+      item.unit=def.defaultUnit;
+      migrated=true;
+    }
+  });
+  if(migrated) persist();
+
   setWeek(0);
 
   // Registrar Service Worker para PWA / offline
