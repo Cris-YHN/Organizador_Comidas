@@ -303,9 +303,14 @@
       background:var(--bg-secondary);border-radius:var(--radius-sm);border:1px solid var(--border);}
     .sel-ing-name{flex:1;font-size:0.85rem;font-weight:500;color:var(--text-primary);}
     .sel-ing-qty-wrap{display:flex;align-items:center;gap:0.3rem;}
-    .sel-ing-qty{width:60px;padding:3px 6px;font-size:0.82rem;text-align:center;}
-    .sel-ing-unit{width:68px;padding:3px 5px;font-size:0.78rem;}
-    .sel-ing-frac{width:54px;padding:3px 5px;font-size:0.78rem;}
+    .sel-ing-qty{width:64px;padding:3px 6px;font-size:0.82rem;text-align:center;}
+    .sel-ing-unit-badge{
+      padding:3px 9px;border-radius:var(--radius-sm);
+      background:var(--accent);color:#fff;
+      font-size:0.78rem;font-weight:700;white-space:nowrap;
+      border:none;cursor:default;
+    }
+    .sel-ing-frac{width:52px;padding:3px 4px;font-size:0.78rem;}
     .sel-ing-remove{background:none;border:none;cursor:pointer;color:var(--text-muted);
       font-size:1rem;line-height:1;padding:2px;display:flex;align-items:center;}
     .sel-ing-remove:hover{color:var(--danger);}
@@ -1012,12 +1017,23 @@ function renderIngSearch(filter){
 
 document.getElementById('ing-search').addEventListener('input',e=>renderIngSearch(e.target.value));
 
+function getIngUnit(name){
+  // 1. Buscar en inventario (fuente de verdad)
+  const inv=state.inventory.find(i=>i.name.toLowerCase()===name.toLowerCase());
+  if(inv) return inv.unit;
+  // 2. Fallback: unidad default del ingrediente precargado
+  const def=DEFAULT_INGREDIENTS.find(d=>d.name.toLowerCase()===name.toLowerCase());
+  if(def) return def.defaultUnit||'u';
+  return 'u';
+}
+
 function toggleIng(name){
   const idx=state.selectedIngredients.findIndex(s=>s.name===name);
   if(idx>=0){
     state.selectedIngredients.splice(idx,1);
   } else {
-    state.selectedIngredients.push({name,qty:1,unit:'u',frac:0});
+    const unit=getIngUnit(name);
+    state.selectedIngredients.push({name, qty:1, unit, frac:0});
   }
   renderIngSearch(document.getElementById('ing-search').value);
   renderSelectedIngsList();
@@ -1029,31 +1045,40 @@ function renderSelectedIngsList(){
   if(!state.selectedIngredients.length){group.style.display='none';return;}
   group.style.display='block';
 
-  container.innerHTML=state.selectedIngredients.map((ing,idx)=>`
+  container.innerHTML=state.selectedIngredients.map((ing,idx)=>{
+    // La unidad siempre viene del inventario; mostrarla como badge fijo
+    const unit=ing.unit||getIngUnit(ing.name);
+    // Fracción solo tiene sentido para kg, L y u
+    const showFrac=UNITS_WITH_FRAC.includes(unit);
+    return `
     <div class="sel-ing-row">
       <span class="sel-ing-name">${ing.name}</span>
       <div class="sel-ing-qty-wrap">
-        <input type="number" class="sel-ing-qty" value="${ing.qty}" min="0" step="0.5"
-          oninput="updateIngField(${idx},'qty',this.value)" title="Cantidad">
-        <select class="sel-ing-unit" onchange="updateIngField(${idx},'unit',this.value)" title="Unidad">
-          ${['u','kg','g','L','ml'].map(u=>`<option value="${u}" ${ing.unit===u?'selected':''}>${u}</option>`).join('')}
-        </select>
-        <select class="sel-ing-frac" onchange="updateIngField(${idx},'frac',this.value)" title="Fracción">
-          <option value="0" ${!ing.frac||ing.frac==0?'selected':''}>—</option>
+        <input type="number" class="sel-ing-qty" value="${ing.qty}" min="0" step="1"
+          oninput="updateIngQty(${idx},this.value)" title="Cantidad">
+        <span class="sel-ing-unit-badge" title="Unidad definida en el inventario">${unit}</span>
+        ${showFrac?`
+        <select class="sel-ing-frac" onchange="updateIngFrac(${idx},this.value)" title="Fracción adicional">
+          <option value="0"    ${!ing.frac||ing.frac==0   ?'selected':''}>—</option>
           <option value="0.25" ${ing.frac==0.25?'selected':''}>¼</option>
           <option value="0.5"  ${ing.frac==0.5 ?'selected':''}>½</option>
           <option value="0.75" ${ing.frac==0.75?'selected':''}>¾</option>
-        </select>
+        </select>`:''}
         <button class="sel-ing-remove" onclick="removeIng(${idx})" title="Quitar">✕</button>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
-function updateIngField(idx,field,val){
+function updateIngQty(idx,val){
   if(!state.selectedIngredients[idx]) return;
-  state.selectedIngredients[idx][field]=field==='qty'?parseFloat(val)||0:
-    field==='frac'?parseFloat(val)||0:val;
-  // actualizar preview en la lista de búsqueda sin re-render completo
+  state.selectedIngredients[idx].qty=parseFloat(val)||0;
+  renderIngSearch(document.getElementById('ing-search').value);
+}
+
+function updateIngFrac(idx,val){
+  if(!state.selectedIngredients[idx]) return;
+  state.selectedIngredients[idx].frac=parseFloat(val)||0;
   renderIngSearch(document.getElementById('ing-search').value);
 }
 
@@ -1072,7 +1097,8 @@ function addCustomIng(name){
     showToast(`✅ "${norm}" agregado`);
   }
   if(!state.selectedIngredients.find(s=>s.name===norm)){
-    state.selectedIngredients.push({name:norm,qty:1,unit:'u',frac:0});
+    const unit=getIngUnit(norm);
+    state.selectedIngredients.push({name:norm, qty:1, unit, frac:0});
   }
   document.getElementById('ing-search').value='';
   renderIngSearch('');
