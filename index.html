@@ -443,8 +443,6 @@
         <label for="inv-unit-input">Unidad</label>
         <select id="inv-unit-input" onchange="updateFracVisibility()">
           <option value="u">Unidades (u)</option>
-          <option value="kg">Kilos (kg)</option>
-          <option value="L">Litros (L)</option>
           <option value="g">Gramos (g)</option>
           <option value="ml">Mililitros (ml)</option>
         </select>
@@ -452,9 +450,9 @@
     </div>
 
     <div class="form-group" id="frac-group">
-      <label>Fracción adicional <span style="font-weight:400;color:var(--text-muted);">(solo kg, L y unidades)</span></label>
+      <label>Fracción adicional <span style="font-weight:400;color:var(--text-muted);">(solo para unidades)</span></label>
       <p style="font-size:0.78rem;color:var(--text-secondary);margin-bottom:0.5rem;">
-        Indicá si además de la parte entera tenés una porción extra disponible.
+        Indicá si además de la parte entera tenés una porción extra disponible. Ej: 2 u + ½
       </p>
       <div class="frac-btns" id="fraction-btns">
         <button class="frac-btn active" data-frac="0">Ninguna</button>
@@ -665,38 +663,38 @@ const MEALS = [
   {id:'cena',    label:'Cena',    icon:'🌙'}
 ];
 const FRAC_LABELS = {0:'Ninguna',0.25:'¼',0.5:'½',0.75:'¾'};
-const UNITS_WITH_FRAC = ['u','kg','L']; // solo estas permiten fracción
+const UNITS_WITH_FRAC = ['u']; // fracción solo para unidades enteras
 
 // Lista maestra de ingredientes precargados (ordenada alfabéticamente)
-// defaultUnit: unidad lógica para ese producto en el inventario
+// defaultUnit: unidad base del producto. Solo g, ml y u. Nunca kg ni L.
 const DEFAULT_INGREDIENTS = [
   {name:'Aceite de girasol',  cat:'Aceites y grasas',   icon:'🫙', defaultUnit:'ml'},
   {name:'Aceite de oliva',    cat:'Aceites y grasas',   icon:'🫒', defaultUnit:'ml'},
   {name:'Ajo',                cat:'Condimentos',        icon:'🧄', defaultUnit:'u'},
-  {name:'Arroz',              cat:'Harinas y cereales', icon:'🌾', defaultUnit:'kg'},
+  {name:'Arroz',              cat:'Harinas y cereales', icon:'🌾', defaultUnit:'g'},
   {name:'Atún en lata',       cat:'Enlatados',          icon:'🐟', defaultUnit:'u'},
-  {name:'Azúcar',             cat:'Azúcares y dulces',  icon:'🍬', defaultUnit:'kg'},
-  {name:'Azúcar impalpable',  cat:'Azúcares y dulces',  icon:'🍬', defaultUnit:'kg'},
+  {name:'Azúcar',             cat:'Azúcares y dulces',  icon:'🍬', defaultUnit:'g'},
+  {name:'Azúcar impalpable',  cat:'Azúcares y dulces',  icon:'🍬', defaultUnit:'g'},
   {name:'Banana',             cat:'Frutas',             icon:'🍌', defaultUnit:'u'},
   {name:'Café',               cat:'Bebidas',            icon:'☕', defaultUnit:'g'},
-  {name:'Carne picada',       cat:'Carnes',             icon:'🥩', defaultUnit:'kg'},
+  {name:'Carne picada',       cat:'Carnes',             icon:'🥩', defaultUnit:'g'},
   {name:'Cebolla',            cat:'Verduras',           icon:'🧅', defaultUnit:'u'},
   {name:'Crema de leche',     cat:'Lácteos',            icon:'🥛', defaultUnit:'ml'},
-  {name:'Fideos',             cat:'Harinas y cereales', icon:'🍝', defaultUnit:'kg'},
-  {name:'Harina 000',         cat:'Harinas y cereales', icon:'🌾', defaultUnit:'kg'},
-  {name:'Harina 0000',        cat:'Harinas y cereales', icon:'🌾', defaultUnit:'kg'},
+  {name:'Fideos',             cat:'Harinas y cereales', icon:'🍝', defaultUnit:'g'},
+  {name:'Harina 000',         cat:'Harinas y cereales', icon:'🌾', defaultUnit:'g'},
+  {name:'Harina 0000',        cat:'Harinas y cereales', icon:'🌾', defaultUnit:'g'},
   {name:'Huevos',             cat:'Otros',              icon:'🥚', defaultUnit:'u'},
   {name:'Lechuga',            cat:'Verduras',           icon:'🥬', defaultUnit:'u'},
-  {name:'Leche entera',       cat:'Lácteos',            icon:'🥛', defaultUnit:'L'},
+  {name:'Leche entera',       cat:'Lácteos',            icon:'🥛', defaultUnit:'ml'},
   {name:'Levadura seca',      cat:'Harinas y cereales', icon:'🌾', defaultUnit:'g'},
   {name:'Limón',              cat:'Frutas',             icon:'🍋', defaultUnit:'u'},
   {name:'Manteca',            cat:'Lácteos',            icon:'🧈', defaultUnit:'g'},
   {name:'Manzana',            cat:'Frutas',             icon:'🍎', defaultUnit:'u'},
-  {name:'Milanesa de ternera',cat:'Carnes',             icon:'🥩', defaultUnit:'kg'},
+  {name:'Milanesa de ternera',cat:'Carnes',             icon:'🥩', defaultUnit:'g'},
   {name:'Orégano',            cat:'Condimentos',        icon:'🌿', defaultUnit:'g'},
   {name:'Pan rallado',        cat:'Harinas y cereales', icon:'🍞', defaultUnit:'g'},
-  {name:'Papa',               cat:'Verduras',           icon:'🥔', defaultUnit:'kg'},
-  {name:'Pechuga de pollo',   cat:'Carnes',             icon:'🍗', defaultUnit:'kg'},
+  {name:'Papa',               cat:'Verduras',           icon:'🥔', defaultUnit:'g'},
+  {name:'Pechuga de pollo',   cat:'Carnes',             icon:'🍗', defaultUnit:'g'},
   {name:'Pimiento',           cat:'Verduras',           icon:'🫑', defaultUnit:'u'},
   {name:'Pimentón',           cat:'Condimentos',        icon:'🌶️', defaultUnit:'g'},
   {name:'Pimienta negra',     cat:'Condimentos',        icon:'🫙', defaultUnit:'g'},
@@ -706,9 +704,9 @@ const DEFAULT_INGREDIENTS = [
   {name:'Sal',                cat:'Condimentos',        icon:'🧂', defaultUnit:'g'},
   {name:'Salsa de tomate',    cat:'Enlatados',          icon:'🫙', defaultUnit:'ml'},
   {name:'Tomate',             cat:'Verduras',           icon:'🍅', defaultUnit:'u'},
-  {name:'Yerba mate',         cat:'Bebidas',            icon:'🧉', defaultUnit:'kg'},
+  {name:'Yerba mate',         cat:'Bebidas',            icon:'🧉', defaultUnit:'g'},
   {name:'Zanahoria',          cat:'Verduras',           icon:'🥕', defaultUnit:'u'},
-  {name:'Agua',               cat:'Bebidas',            icon:'💧', defaultUnit:'L'},
+  {name:'Agua',               cat:'Bebidas',            icon:'💧', defaultUnit:'ml'},
 ];
 
 /* ══════════════════════════════════
@@ -1297,12 +1295,13 @@ function renderInventory(){
   }
 
   list.innerHTML=items.map(item=>{
-    const fracStr=item.fraction&&item.fraction>0&&UNITS_WITH_FRAC.includes(item.unit)?
-      ` + ${FRAC_LABELS[item.fraction]}`:'';
-    const hasQty=item.qty>0||item.fraction>0;
-    const qtyNum=`${item.qty}${item.unit}${fracStr}`;
-    const lowCls=item.qty===0&&item.fraction>0?' low-stock':'';
-    // Ítems personalizados (no default) pueden eliminarse
+    // fracción solo para u
+    const fracStr=(item.fraction>0&&item.unit==='u')?` + ${FRAC_LABELS[item.fraction]}`:'';
+    const hasQty=item.qty>0||(item.unit==='u'&&item.fraction>0);
+    const qtyDisplay=hasQty
+      ? `${formatQty(item.qty, item.unit)}${fracStr}`
+      : `<span style="color:var(--text-muted);font-size:0.8rem;">Sin stock</span>`;
+    const lowCls=(item.qty===0&&item.unit==='u'&&item.fraction>0)?' low-stock':'';
     const isCustom=!DEFAULT_INGREDIENTS.find(d=>d.name.toLowerCase()===item.name.toLowerCase());
     return `<div class="inv-item${lowCls}">
       <span class="inv-item-icon">${item.icon}</span>
@@ -1312,9 +1311,7 @@ function renderInventory(){
       </div>
       <div style="display:flex;align-items:center;gap:0.3rem;">
         <button class="inv-qty-btn" onclick="quickAdjustInv('${item.id}',-1)" title="Restar 1">−</button>
-        <span class="inv-item-qty" style="min-width:60px;text-align:center;">
-          ${hasQty?qtyNum:'<span style="color:var(--text-muted);font-size:0.8rem;">0'+item.unit+'</span>'}
-        </span>
+        <span class="inv-item-qty" style="min-width:64px;text-align:center;">${qtyDisplay}</span>
         <button class="inv-qty-btn inv-qty-add" onclick="quickAdjustInv('${item.id}',1)" title="Sumar 1">+</button>
         <button class="meal-action-btn" title="Editar detalles" onclick="openAddInv('${item.id}')" style="margin-left:2px;">✏️</button>
         ${isCustom?`<button class="meal-action-btn del-btn" title="Eliminar" onclick="deleteInvItem('${item.id}')">🗑</button>`:''}
@@ -1350,7 +1347,20 @@ function deleteInvItem(id){
 /* ══════════════════════════════════
    LISTA DE COMPRAS
 ══════════════════════════════════ */
-function r2(n){ return Math.round(n * 100) / 100; } // redondeo a 2 decimales
+function r2(n){ return Math.round(n * 100) / 100; }
+
+// Convierte g→kg o ml→L si supera 1000, para mostrar al usuario
+function formatQty(qty, unit){
+  if(unit==='g' && qty>=1000){
+    const kg=r2(qty/1000);
+    return `${kg} kg`;
+  }
+  if(unit==='ml' && qty>=1000){
+    const L=r2(qty/1000);
+    return `${L} L`;
+  }
+  return `${r2(qty)} ${unit}`;
+}
 
 function generateShoppingList(){
   const k=weekKey(state.currentWeekOffset);
@@ -1363,9 +1373,11 @@ function generateShoppingList(){
     if(!recipe) return;
     recipe.ingredients.forEach(ing=>{
       const name=typeof ing==='string'?ing:ing.name;
-      const qty=typeof ing==='object'?r2((parseFloat(ing.qty)||0)+(parseFloat(ing.frac)||0)):1;
-      const unit=typeof ing==='object'?ing.unit:'u';
-      if(!needed[name]) needed[name]={qty:0,unit};
+      // fracción solo aplica para u; para g y ml ignorar
+      const ingUnit=typeof ing==='object'?ing.unit:'u';
+      const frac=(ingUnit==='u')?(parseFloat(ing.frac)||0):0;
+      const qty=typeof ing==='object'?r2((parseFloat(ing.qty)||0)+frac):1;
+      if(!needed[name]) needed[name]={qty:0,unit:ingUnit};
       needed[name].qty=r2(needed[name].qty+qty);
     });
   });
@@ -1373,7 +1385,9 @@ function generateShoppingList(){
   const shopItems=[];
   Object.entries(needed).forEach(([name,{qty,unit}])=>{
     const inv=state.inventory.find(i=>i.name.toLowerCase()===name.toLowerCase());
-    const have=inv?r2((inv.qty||0)+(inv.fraction||0)):0;
+    // fracción del inventario solo cuenta para u
+    const invFrac=(inv&&inv.unit==='u')?(inv.fraction||0):0;
+    const have=inv?r2((inv.qty||0)+invFrac):0;
     const falta=r2(qty-have);
     if(falta>0){
       shopItems.push({id:uid(),name,qty:falta,unit,checked:false,manual:false});
@@ -1409,7 +1423,7 @@ function renderShopping(){
     <div class="shop-item ${item.checked?'checked':''}">
       <div class="shop-checkbox ${item.checked?'checked':''}" onclick="toggleShopCheck('${item.id}')">${item.checked?'✓':''}</div>
       <span class="shop-item-name">${item.name}</span>
-      <span class="shop-item-qty">${item.qty} ${item.unit}</span>
+      <span class="shop-item-qty">${formatQty(item.qty, item.unit)}</span>
       <button class="meal-action-btn del-btn" onclick="deleteShopItem('${item.id}')" title="Eliminar">✕</button>
     </div>`).join('');
 }
@@ -1426,7 +1440,7 @@ function exportShoppingList(){
   const pending=state.shopping.filter(s=>!s.checked);
   if(!pending.length){showToast('No hay ítems pendientes');return;}
   const text='🛒 LISTA DE COMPRAS\n'+new Date().toLocaleDateString('es-AR')+'\n\n'
-    +pending.map(i=>`☐  ${i.name}  (${i.qty} ${i.unit})`).join('\n');
+    +pending.map(i=>`☐  ${i.name}  (${formatQty(i.qty, i.unit)})`).join('\n');
   const a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob([text],{type:'text/plain;charset=utf-8'}));
   a.download='lista-de-compras.txt'; a.click();
@@ -1491,13 +1505,16 @@ function confirmClearAll(){
   if(state.settings.dark) document.documentElement.setAttribute('data-theme','dark');
   if(state.settings.fontSize!=='normal') document.documentElement.setAttribute('data-font-size',state.settings.fontSize);
 
-  // Migración: actualizar unidades de ingredientes precargados que siguen en 'u' por defecto
+  // Migración: convertir kg→g y L→ml en inventario existente, y actualizar unidades default
   let migrated=false;
   state.inventory.forEach(item=>{
+    // Convertir kg y L a sus equivalentes base
+    if(item.unit==='kg'){ item.qty=r2(item.qty*1000); item.unit='g'; item.fraction=0; migrated=true; }
+    if(item.unit==='L'){  item.qty=r2(item.qty*1000); item.unit='ml'; item.fraction=0; migrated=true; }
+    // Si todavía tiene 'u' y el default dice otra cosa, actualizar
     const def=DEFAULT_INGREDIENTS.find(d=>d.name===item.name);
     if(def && def.defaultUnit && item.unit==='u' && def.defaultUnit!=='u'){
-      item.unit=def.defaultUnit;
-      migrated=true;
+      item.unit=def.defaultUnit; migrated=true;
     }
   });
   if(migrated) persist();
